@@ -38,7 +38,7 @@ def show_images(images):
 
 
 # Method for thresholding and using morphological operation Opening
-def opened_images(images_set):
+def open_images(images_set):
     opened_images_list = list()
     for img in images_set:
         ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
@@ -60,7 +60,7 @@ def get_contours(image_cropped):
 # Method for TO DO:
 def extract_numbers(images_оpened):
     for image in images_оpened:
-        image_cropped = cv2.resize(image[300:350, 0:160], (400, 250))
+        image_cropped = cv2.resize(image[300:345, 5:160], (400, 250))
         plt.suptitle("Extracted elements", fontsize=14)
         plt.subplot(3, 3, 1)
         plt.imshow(image_cropped, cmap='gray')
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     cv2.waitKey(0)
 
     # Calling method opened_images on grayscale images
-    images_оpened = opened_images(images_gray)
+    images_оpened = open_images(images_gray)
 
     # TO DO:
     numbers_sting = extract_numbers(images_оpened)
