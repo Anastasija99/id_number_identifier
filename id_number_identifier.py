@@ -82,7 +82,7 @@ if __name__ == "__main__":
     image_database = glob.glob("./images/*.jpg")
 
     # Glob for the image of the pattern
-    pattern = glob.glob("./pattern/*.png")[0]
+    pattern = glob.glob("./pattern/*.jpg")[0]
 
     # Reading the images from the database in color
     images_color = read_images_color(image_database)

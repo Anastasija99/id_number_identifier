@@ -69,7 +69,7 @@ def show_created_pattern_images(pattern_images_opened):
 
 # Method for making the pattern and saving it in the directory pattern
 def combine_pattern_images(pattern_images):
-    black = cv2.imread("images/black_photo.jpg", cv2.IMREAD_GRAYSCALE)
+    black = cv2.imread("pattern/space/black_photo.jpg", cv2.IMREAD_GRAYSCALE)
     black = cv2.resize(black,(50,250))
 
     p = black
