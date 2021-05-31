@@ -46,7 +46,7 @@ def show_created_pattern_images(pattern_images_opened):
     for ind, pattern_image in enumerate(pattern_images_opened):
         contour = get_contours(pattern_image)
         (x, y, w, h) = cv2.boundingRect(contour[0])
-        cv2.drawContours(pattern_image, contour, -1, (255, 0, 0), 10)
+        cv2.drawContours(pattern_image, contour, -1, (255, 0, 0), 5)
         element = pattern_image[y:y + h, x:x + w]
         element = cv2.resize(element, (200, 250))
         pattern_list.append(element)

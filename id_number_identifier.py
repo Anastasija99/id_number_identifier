@@ -131,12 +131,20 @@ def match_elements_to_pattern(images_elements, pattern_elements):
                 score = cv2.minMaxLoc(matching_result)[1]
                 element_score[pattern_index] = score
             element_score = dict(sorted(element_score.items(), key=operator.itemgetter(1), reverse=True))
-
             matched_elements[image_element_index] = list(element_score.keys())[0]
         id_number = evaluate_elements(matched_elements)
         result_id_number['ID ' + str(ID_index + 1)] = id_number
         print(f'ID {ID_index + 1} : {id_number}')
     return result_id_number
+
+
+def show_images_with_id_number(images_color, matching_result):
+    for index, image in enumerate(images_color):
+        cv2.rectangle(image, (170, 345), (15, 300), (0, 255, 255), 2)
+        cv2.putText(image, matching_result['ID ' + str(index + 1)], (25, 285), cv2.FONT_HERSHEY_SIMPLEX, 0.85,
+                    (0, 255, 255), 2)
+        cv2.imshow('ID ' + str(index + 1), image)
+        cv2.waitKey(0)
 
 
 if __name__ == '__main__':
@@ -176,9 +184,4 @@ if __name__ == '__main__':
     # Calling method match_elements_to_pattern
     matching_result = match_elements_to_pattern(images_elements, pattern_elements)
 
-    for index, image in enumerate(images_color):
-        cv2.rectangle(image, (170, 345), (15, 300), (0, 255, 255), 2)
-        cv2.putText(image, matching_result['ID ' + str(index + 1)], (25, 285), cv2.FONT_HERSHEY_SIMPLEX, 0.85,
-                    (0, 255, 255), 2)
-        cv2.imshow('AMIN', image)
-        cv2.waitKey(0)
+    show_images_with_id_number(images_color, matching_result)
