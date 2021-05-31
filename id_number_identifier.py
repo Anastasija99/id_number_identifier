@@ -31,9 +31,10 @@ def read_images_gray(images_glob):
 
 
 # Method for showing the images
-def show_images(images):
+def show_images(images, title):
     for image_index, image in enumerate(images):
-        cv2.imshow("ID Image", image)
+        image = cv2.resize(image, (600, 350))
+        cv2.imshow(title, image)
         cv2.waitKey(0)
 
 
@@ -53,36 +54,59 @@ def open_images(images_set):
 def get_contours(image_cropped):
     contour = cv2.findContours(image_cropped, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contour = imutils.grab_contours(contour)
-    contour = contours.sort_contours(contour, method="left-to-right")[0]
+    contour = contours.sort_contours(contour, method='left-to-right')[0]
     return contour
 
 
-# Method for TO DO:
-def extract_numbers(images_оpened):
+# Method for extracting separate elements from the ID images
+def extract_elements(images_оpened):
+    images_extracted_elements = list()
     for image in images_оpened:
         image_cropped = cv2.resize(image[300:345, 5:160], (400, 250))
-        plt.suptitle("Extracted elements", fontsize=14)
+        plt.suptitle('Extracted elements', fontsize=14)
         plt.subplot(3, 3, 1)
         plt.imshow(image_cropped, cmap='gray')
-
-        contour = get_contours(image_cropped)
-        for index, c in enumerate(contour):
-            (x, y, w, h) = cv2.boundingRect(c)
+        extracted_elements = list()
+        contours = get_contours(image_cropped)
+        for index, contour in enumerate(contours):
+            (x, y, w, h) = cv2.boundingRect(contour)
             element = image_cropped[y:y + h, x:x + w]
             element = cv2.resize(element, (200, 250))
+            extracted_elements.append(element)
             plt.subplot(3, 3, 2 + index)
             plt.imshow(element, cmap='gray')
+
         plt.show()
-    # ...
-    # return string "A00000"
+        images_extracted_elements.append(extracted_elements)
+
+    return images_extracted_elements
 
 
-if __name__ == "__main__":
+# Method for extracting separate elements from the pattern image
+def extract_pattern_elements(pattern):
+    extracted_pattern_elements = list()
+    contours = get_contours(pattern)
+    contours = [contour for index, contour in enumerate(contours) if index != 2]
+    plt.suptitle('Pattern elements', fontsize=14)
+    for index, contour in enumerate(contours):
+        (x, y, w, h) = cv2.boundingRect(contour)
+        element = pattern[y:y + h, x:x + w]
+        element = cv2.resize(element, (200, 250))
+        extracted_pattern_elements.append(element)
+        plt.subplot(3, 4, index + 1)
+        plt.imshow(element, cmap='gray')
+        if index == 11:
+            break
+    plt.show()
+    return extracted_pattern_elements
+
+
+if __name__ == '__main__':
     # Glob for the images of the id cards
-    image_database = glob.glob("./images/*.jpg")
+    image_database = glob.glob('./images/*.jpg')
 
     # Glob for the image of the pattern
-    pattern = glob.glob("./pattern/*.jpg")[0]
+    pattern = glob.glob('./pattern/*.jpg')[0]
 
     # Reading the images from the database in color
     images_color = read_images_color(image_database)
@@ -92,21 +116,22 @@ if __name__ == "__main__":
 
     # Reading the pattern in grayscale
     pattern_gray = cv2.imread(pattern, cv2.IMREAD_GRAYSCALE)
-
-    # Tresholding and inverting the pattern image
+    # Double thresholding for better results
+    pattern_gray = cv2.threshold(pattern_gray, 10, 255, cv2.THRESH_BINARY_INV)[1]
     pattern_gray = cv2.threshold(pattern_gray, 10, 255, cv2.THRESH_BINARY_INV)[1]
 
-    # Calling method for showing images in color
-    show_images(images_color)
-    # Calling method for showing images in gray
-    show_images(images_gray)
+    # Calling method for showing ID images in color
+    show_images(images_color, 'ID Image')
+    # Calling method for showing ID images in gray
+    show_images(images_gray, 'ID Image gray')
+    # Calling method for showing pattern image
+    show_images([pattern_gray], 'Pattern Image')
 
-    # Showing the pattern in gray
-    cv2.imshow("Pattern image", pattern_gray)
-    cv2.waitKey(0)
-
-    # Calling method opened_images on grayscale images
+    # Calling method open_images on ID images
     images_оpened = open_images(images_gray)
 
-    # TO DO:
-    numbers_sting = extract_numbers(images_оpened)
+    # Calling method extract_pattern_elements on the pattern
+    pattern_elements = extract_pattern_elements(pattern_gray)
+    # Calling method extract_elements on ID images
+    images_elements = extract_elements(images_оpened)
+
