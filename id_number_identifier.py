@@ -1,6 +1,7 @@
 # Digital Image Processing Project
 
 import glob
+import operator
 
 import cv2
 import imutils
@@ -34,7 +35,10 @@ def read_images_gray(images_glob):
 def show_images(images, title):
     for image_index, image in enumerate(images):
         image = cv2.resize(image, (600, 350))
-        cv2.imshow(title, image)
+        if len(images) == 1:
+            cv2.imshow(title, image)
+        else:
+            cv2.imshow(title + ' ' + str(image_index + 1), image)
         cv2.waitKey(0)
 
 
@@ -61,9 +65,9 @@ def get_contours(image_cropped):
 # Method for extracting separate elements from the ID images
 def extract_elements(images_оpened):
     images_extracted_elements = list()
-    for image in images_оpened:
+    for ind, image in enumerate(images_оpened):
         image_cropped = cv2.resize(image[300:345, 5:160], (400, 250))
-        plt.suptitle('Extracted elements', fontsize=14)
+        plt.suptitle('Extracted elements from ID ' + str(ind + 1), fontsize=14)
         plt.subplot(3, 3, 1)
         plt.imshow(image_cropped, cmap='gray')
         extracted_elements = list()
@@ -101,6 +105,40 @@ def extract_pattern_elements(pattern):
     return extracted_pattern_elements
 
 
+# Method for evaluating the matched elements
+def evaluate_elements(matched_elements):
+    id_number = ''
+    for value in matched_elements.values():
+        if value == 10:
+            id_number = ''.join([id_number, 'A'])
+        elif value == 11:
+            id_number = ''.join([id_number, 'T'])
+        else:
+            id_number = ''.join([id_number, str(value)])
+
+    return id_number
+
+
+# Method for matching the elements from the ID image to the pattern
+def match_elements_to_pattern(images_elements, pattern_elements):
+    result_id_number = dict()
+    for ID_index, image in enumerate(images_elements):
+        matched_elements = dict()
+        for image_element_index, image_element in enumerate(image):
+            element_score = dict()
+            for pattern_index, pattern_element in enumerate(pattern_elements):
+                matching_result = cv2.matchTemplate(image_element, pattern_element, cv2.TM_CCOEFF)
+                score = cv2.minMaxLoc(matching_result)[1]
+                element_score[pattern_index] = score
+            element_score = dict(sorted(element_score.items(), key=operator.itemgetter(1), reverse=True))
+
+            matched_elements[image_element_index] = list(element_score.keys())[0]
+        id_number = evaluate_elements(matched_elements)
+        result_id_number['ID ' + str(ID_index + 1)] = id_number
+        print(f'ID {ID_index + 1} : {id_number}')
+    return result_id_number
+
+
 if __name__ == '__main__':
     # Glob for the images of the id cards
     image_database = glob.glob('./images/*.jpg')
@@ -123,7 +161,7 @@ if __name__ == '__main__':
     # Calling method for showing ID images in color
     show_images(images_color, 'ID Image')
     # Calling method for showing ID images in gray
-    show_images(images_gray, 'ID Image gray')
+    # show_images(images_gray, 'ID Image gray')
     # Calling method for showing pattern image
     show_images([pattern_gray], 'Pattern Image')
 
@@ -135,3 +173,12 @@ if __name__ == '__main__':
     # Calling method extract_elements on ID images
     images_elements = extract_elements(images_оpened)
 
+    # Calling method match_elements_to_pattern
+    matching_result = match_elements_to_pattern(images_elements, pattern_elements)
+
+    for index, image in enumerate(images_color):
+        cv2.rectangle(image, (170, 345), (15, 300), (0, 255, 255), 2)
+        cv2.putText(image, matching_result['ID ' + str(index + 1)], (25, 285), cv2.FONT_HERSHEY_SIMPLEX, 0.85,
+                    (0, 255, 255), 2)
+        cv2.imshow('AMIN', image)
+        cv2.waitKey(0)
