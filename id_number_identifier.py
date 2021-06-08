@@ -6,6 +6,7 @@ import operator
 import cv2
 import imutils
 import matplotlib.pyplot as plt
+import numpy as np
 from imutils import contours
 
 
@@ -66,7 +67,7 @@ def get_contours(image_cropped):
 def extract_elements(images_оpened):
     images_extracted_elements = list()
     for ind, image in enumerate(images_оpened):
-        image_cropped = cv2.resize(image[300:345, 5:160], (400, 250))
+        image_cropped = cv2.resize(image[310:340, 5:160], (400, 250))
         plt.suptitle('Extracted elements from ID ' + str(ind + 1), fontsize=14)
         plt.subplot(3, 3, 1)
         plt.imshow(image_cropped, cmap='gray')
@@ -79,6 +80,8 @@ def extract_elements(images_оpened):
             extracted_elements.append(element)
             plt.subplot(3, 3, 2 + index)
             plt.imshow(element, cmap='gray')
+            if index + 2 >= 9:
+                break
 
         plt.show()
         images_extracted_elements.append(extracted_elements)
@@ -138,6 +141,7 @@ def match_elements_to_pattern(images_elements, pattern_elements):
     return result_id_number
 
 
+# Method for showing images with the id number written on them
 def show_images_with_id_number(images_color, matching_result):
     for index, image in enumerate(images_color):
         cv2.rectangle(image, (170, 345), (15, 300), (0, 255, 255), 2)
@@ -145,6 +149,29 @@ def show_images_with_id_number(images_color, matching_result):
                     (0, 255, 255), 2)
         cv2.imshow('ID ' + str(index + 1), image)
         cv2.waitKey(0)
+
+
+# Method for detecting edges of the id card and cropping the images
+def detect_edges(images_color, images_gray):
+    cropped_images_color = list()
+    cropped_images_gray = list()
+    for image, image_gray in zip(images_color, images_gray):
+        blurred = cv2.blur(image, (3, 3))
+        canny = cv2.Canny(blurred, 100, 255)
+        pts = np.argwhere(canny > 0)
+        y1, x1 = pts.min(axis=0)
+        y2, x2 = pts.max(axis=0)
+        tagged = cv2.rectangle(image.copy(), (x1, y1), (x2, y2), (0, 255, 0), 3, cv2.LINE_AA)
+        # cv2.imshow("tagged", tagged)
+        # cv2.waitKey()
+        cropped = image[y1:y2, x1:x2]
+        cropped = cv2.resize(cropped, (600, 350))
+        cropped_images_color.append(cropped)
+        cropped_gray = image_gray[y1:y2, x1:x2]
+        cropped_gray = cv2.resize(cropped_gray, (600, 350))
+        cropped_images_gray.append(cropped_gray)
+
+    return cropped_images_color, cropped_images_gray
 
 
 if __name__ == '__main__':
@@ -159,6 +186,9 @@ if __name__ == '__main__':
 
     # Reading the images from the database in grayscale
     images_gray = read_images_gray(image_database)
+
+    # Calling method for detecting edges
+    images_color, images_gray = detect_edges(images_color, images_gray)
 
     # Reading the pattern in grayscale
     pattern_gray = cv2.imread(pattern, cv2.IMREAD_GRAYSCALE)
