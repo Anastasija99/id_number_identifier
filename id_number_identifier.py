@@ -213,5 +213,6 @@ if __name__ == '__main__':
 
     # Calling method match_elements_to_pattern
     matching_result = match_elements_to_pattern(images_elements, pattern_elements)
-
+    
+    # Calling method for showing images with the id number
     show_images_with_id_number(images_color, matching_result)
