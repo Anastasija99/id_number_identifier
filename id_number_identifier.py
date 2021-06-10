@@ -67,7 +67,7 @@ def get_contours(image_cropped):
 def extract_elements(images_оpened):
     images_extracted_elements = list()
     for ind, image in enumerate(images_оpened):
-        image_cropped = cv2.resize(image[310:340, 5:160], (400, 250))
+        image_cropped = cv2.resize(image[300:330, 5:160], (400, 250))
         plt.suptitle('Extracted elements from ID ' + str(ind + 1), fontsize=14)
         plt.subplot(3, 3, 1)
         plt.imshow(image_cropped, cmap='gray')
@@ -176,7 +176,7 @@ def detect_edges(images_color, images_gray):
 
 if __name__ == '__main__':
     # Glob for the images of the id cards
-    image_database = glob.glob('./images/*.jpg')
+    image_database = glob.glob('./images/*.png')
 
     # Glob for the image of the pattern
     pattern = glob.glob('./pattern/*.jpg')[0]
