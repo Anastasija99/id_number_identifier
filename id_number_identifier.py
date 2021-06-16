@@ -144,9 +144,9 @@ def match_elements_to_pattern(images_elements, pattern_elements):
 # Method for showing images with the id number written on them
 def show_images_with_id_number(images_color, matching_result):
     for index, image in enumerate(images_color):
-        cv2.rectangle(image, (170, 345), (15, 300), (0, 255, 255), 2)
+        cv2.rectangle(image, (170, 345), (15, 300), (0, 0, 255), 2)
         cv2.putText(image, matching_result['ID ' + str(index + 1)], (25, 285), cv2.FONT_HERSHEY_SIMPLEX, 0.85,
-                    (0, 255, 255), 2)
+                    (0, 0, 255), 2)
         cv2.imshow('ID ' + str(index + 1), image)
         cv2.waitKey(0)
 
